@@ -1,0 +1,126 @@
+---
+title: "Sampling and Summarizing Intro"
+author: "Prabidhik KC"
+date: "2022-09-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Importing the required libraries
+library(tidyverse)
+library(gapminder)
+library(gov50data)
+
+
+## In this project, we will be learning the introduction to summarizing and
+## sampling of datas
+```
+
+```{r}
+## Checking the first few entries of our data
+head(gapminder)
+head(gapminder$gdpPercap, n = 20)
+head(gapminder$lifeExp, n = 20)
+
+
+
+## Lets first look at the central tendency of few of the variables of the data
+## Making a histogram and checking the mean and the median of life expectancy in
+## gapminder data
+
+lifeExp_hist <- ggplot(gapminder, aes(x = lifeExp)) +
+  geom_histogram(binwidth = 1) +
+  geom_vline(aes(xintercept = mean(lifeExp)), color = "red") +
+  geom_vline(aes(xintercept = median(lifeExp)), color = "dodgerblue") +
+  labs(title = "Life Expectancy histogram")
+
+lifeExp_hist
+summary(gapminder$lifeExp)
+
+print("We are not seeing the significant difference in mean and median in this data")
+
+```
+
+```{r}
+## Now lets look at the mean and median of gdppercap in gapminder data
+
+gdp_hist <- ggplot(gapminder, aes(x = gdpPercap)) +
+  geom_histogram(binwidth = 500) +
+  geom_vline(aes(xintercept = mean(gdpPercap)), color = "red") +
+  geom_vline(aes(xintercept = median(gdpPercap)), color = "dodgerblue")
+
+gdp_hist
+summary(gapminder$gdpPercap)
+
+print("Whereas in this case we can see the significant difference in mean and median")
+```
+
+```{r}
+## Sometimes there might be same mean and same median, but the data may look very
+## different. In that case, the spread of the two distributions is different.
+## Now, lets examine the spread of few variables
+
+range(gapminder$lifeExp)
+IQR(gapminder$lifeExp)
+
+## Standard deviation: On average how far are the data from the mean
+
+sd(gapminder$lifeExp)
+```
+
+## Missing Data
+```{r}
+## Now we will be working with the missing data
+
+cces_2020 %>% 
+  drop_na(turnout_self)
+```
+### Complete Case Analysis
+```{r}
+cces_2020 %>% 
+  summarize(mean(turnout_self, na.rm = TRUE)) %>% 
+  pull()
+
+
+```
+
+```{r}
+cces_2020 %>% 
+  drop_na() %>% 
+  summarize(mean(turnout_self)) %>% 
+  pull()
+
+```
+
+```{r}
+is.na(c(5, 1, NA, 75))
+
+sum(is.na(c(5, 1, NA, 75)))
+
+mean(is.na(c(5, 1, NA, 75)))
+```
+### Bias in missingness ??
+
+```{r}
+cces_2020 %>% 
+  group_by(pid3) %>% 
+  summarize(
+    mean_turnout = mean(turnout_self, na.rm = TRUE),
+    missing_turnout = mean(is.na(turnout_self))
+  )
+```
+
+
+### Proportion Table 
+
+```{r}
+cces_2020 %>% 
+  group_by(pres_vote) %>% 
+  summarize(n = n()) %>% 
+  mutate(
+    prop = n/sum(n)
+  )
+```
+
